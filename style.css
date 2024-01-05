@@ -1,0 +1,65 @@
+/* styles.css */
+:root {
+    --green: rgba(0, 255, 0, 0.8);
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: black;
+}
+
+#matrixWallpaper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 20px;
+    line-height: 20px;
+    user-select: none;
+    filter: blur(2px);
+    font-family: 'Orbitron', sans-serif;
+    color: green;
+}
+
+@keyframes fall {
+    to {
+        transform: translateY(100vh);
+    }
+}
+
+#matrixWallpaper span {
+    position: absolute;
+    animation: fall linear;
+    animation-fill-mode: forwards;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    filter: brightness(2.5);
+}
+
+/* END OF WALLPAPER */
+
+
+#calculatorContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70rem;
+    height: 40rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#calculatorInput {
+    border: 1px solid rgba(0, 255, 0, 0.8);
+    border-radius: 10px;
+    background-color: rgb(0, 0, 0);
+    width: 100%;
+    height: 100%;
+    padding: 30px;
+    font-size: 30px;
+    font-family: 'Orbitron', sans-serif;
+    color: rgba(0, 255, 0, 0.8);
+}
