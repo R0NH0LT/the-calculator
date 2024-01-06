@@ -2,6 +2,8 @@ const matrixContainer = document.querySelector("#matrixWallpaper");
 const maxCharacters = 1500; // Set a maximum number of characters on the screen
 let characterCount = 0;
 
+const calculatorInput = document.getElementById("calculatorInput");
+
 function createFallingCharacter() {
     if (characterCount <= maxCharacters) {
         const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Define the character set
@@ -42,6 +44,53 @@ console.log("Script loaded");
 
 
 
+// Add an event listener to the input element to listen for the animationend event
+const inputElement = document.getElementById("calculatorInput");
+inputElement.addEventListener("animationend", () => {
+    // This callback function runs after the animation is complete
+    typePlaceholder(inputElement, "Wake Up. . . .Time for some calculations."); // Replace with your desired placeholder text
+}, { once: true }); // { once: true } ensures the event listener is only triggered once
+
+// Start the animation for the input element
+inputElement.classList.add("yourAnimationClass"); // Replace with your animation class
+
+// Function to simulate typing of the placeholder text
+function typePlaceholder(element, text) {
+    let index = 0;
+
+    function typeCharacter() {
+        if (index < text.length) {
+            element.setAttribute("placeholder", text.substring(0, index + 1));
+            index++;
+            setTimeout(typeCharacter, 100); // Adjust typing speed (in milliseconds)
+        }
+    }
+
+    typeCharacter();
+}
+
+
+
+
+
+
+// SCRIPT FOR THE CALCULATOR
+
+const stack = [];
+const operators = {
+    "+": (a, b) => a + b,
+    "-": (a, b) => a - b,
+    "*": (a, b) => a * b,
+    "/": (a, b) => a / b,
+};
+
+
+// Listen for user input and evaluate expressions
+calculatorInput.addEventListener("keyup", function (event) {
+    if (event.key === "Enter") {
+        evaluateExpression();
+    }
+});
 
 
 
