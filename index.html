@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The One. . . .Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="matrixWallpaper" aria-hidden="true"></div>
+    <main id="computerContainer" aria-label="The Calculator terminal">
+        <section id="computerScreen">
+            <div id="transcript" aria-live="polite"></div>
+            <form id="promptForm" autocomplete="off">
+                <span id="promptCaret" aria-hidden="true">&gt;</span>
+                <label class="visually-hidden" for="calculatorInput">Type a calculation</label>
+                <input type="text" id="calculatorInput" inputmode="text" autocomplete="off" spellcheck="false">
+            </form>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

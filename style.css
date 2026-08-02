@@ -1,0 +1,196 @@
+:root {
+    --green: rgba(0, 255, 0, 0.82);
+    --green-dim: rgba(0, 255, 0, 0.38);
+    --green-bright: rgb(125, 255, 135);
+    --screen: rgba(0, 0, 0, 0.88);
+    --screen-border: rgba(0, 255, 0, 0.52);
+    --error: rgb(255, 104, 104);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    background: black;
+    font-family: 'Orbitron', sans-serif;
+}
+
+#matrixWallpaper {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    color: green;
+    font-size: 20px;
+    line-height: 20px;
+    user-select: none;
+    pointer-events: none;
+    filter: blur(2px);
+}
+
+#matrixWallpaper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at center, transparent 0, rgba(0, 0, 0, 0.12) 42%, rgba(0, 0, 0, 0.76) 100%),
+        repeating-linear-gradient(to bottom, rgba(0, 255, 0, 0.05) 0 1px, transparent 1px 4px);
+}
+
+#matrixWallpaper span {
+    position: absolute;
+    animation: fall linear;
+    animation-fill-mode: forwards;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    filter: brightness(2.5);
+}
+
+@keyframes fall {
+    from {
+        transform: translateY(-10vh);
+    }
+
+    to {
+        transform: translateY(110vh);
+    }
+}
+
+#computerContainer {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    width: min(100%, 64rem);
+    margin: 0 auto;
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#computerScreen {
+    width: 100%;
+    min-height: min(70vh, 42rem);
+    padding: 28px;
+    border: 1px solid var(--screen-border);
+    border-radius: 8px;
+    background: var(--screen);
+    box-shadow:
+        0 0 28px rgba(0, 255, 0, 0.28),
+        inset 0 0 36px rgba(0, 255, 0, 0.1);
+    animation: screenWake 900ms ease-out;
+}
+
+#transcript {
+    height: min(54vh, 31rem);
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.line {
+    min-height: 1.4em;
+    margin: 0 0 14px;
+    color: var(--green);
+    font-size: clamp(0.96rem, 2.1vw, 1.25rem);
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-shadow: 0 0 12px rgba(0, 255, 0, 0.5);
+    overflow-wrap: anywhere;
+}
+
+.incoming {
+    color: var(--green-bright);
+}
+
+.calculation {
+    color: rgb(160, 255, 168);
+}
+
+.error {
+    color: var(--error);
+    text-shadow: 0 0 12px rgba(255, 104, 104, 0.42);
+}
+
+#promptForm {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(0, 255, 0, 0.24);
+}
+
+#promptCaret {
+    color: var(--green-bright);
+    font-size: clamp(1.1rem, 2.3vw, 1.45rem);
+    text-shadow: 0 0 12px rgba(0, 255, 0, 0.65);
+}
+
+#calculatorInput {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--green-bright);
+    caret-color: var(--green-bright);
+    font: inherit;
+    font-size: clamp(1.1rem, 2.3vw, 1.45rem);
+    letter-spacing: 0;
+    text-shadow: 0 0 12px rgba(0, 255, 0, 0.55);
+}
+
+#calculatorInput::selection {
+    background: rgba(0, 255, 0, 0.25);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@keyframes screenWake {
+    0% {
+        opacity: 0;
+        transform: scaleX(0.05) scaleY(0.002);
+        filter: brightness(3);
+    }
+
+    40% {
+        opacity: 1;
+        transform: scaleX(1) scaleY(0.01);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: brightness(1);
+    }
+}
+
+@media (max-width: 620px) {
+    #computerContainer {
+        padding: 16px;
+        align-items: stretch;
+    }
+
+    #computerScreen {
+        min-height: auto;
+        margin: auto 0;
+        padding: 18px;
+    }
+
+    #transcript {
+        height: 62vh;
+    }
+}
