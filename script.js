@@ -36,7 +36,7 @@ function createMatrixStream(x, width, height) {
         x,
         y: randomBetween(-height, height),
         fontSize,
-        speed: randomBetween(0.9, 4.4),
+        speed: randomBetween(3.2, 12.5),
         trailLength,
         opacity: randomBetween(0.18, 0.9),
         blur: randomBetween(2, 10),
@@ -77,7 +77,7 @@ function drawMatrixRain() {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    matrixContext.fillStyle = "rgba(0, 0, 0, 0.13)";
+    matrixContext.fillStyle = "rgba(0, 0, 0, 0.18)";
     matrixContext.fillRect(0, 0, width, height);
     matrixContext.textAlign = "center";
     matrixContext.textBaseline = "top";
