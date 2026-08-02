@@ -22,7 +22,7 @@ let matrixStreams = [];
 let matrixAnimationFrame;
 let lastMatrixFrameTime = 0;
 const targetFrameRate = 60;
-const baseFadeAlpha = 0.23;
+const baseFadeAlpha = 0.43;
 
 function randomMatrixGlyph() {
     const group = matrixGlyphGroups[Math.floor(Math.random() * matrixGlyphGroups.length)];
