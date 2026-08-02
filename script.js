@@ -131,21 +131,17 @@ function drawMatrixStream(stream, height) {
             stream.glyphs[index] = randomMatrixGlyph();
         }
 
-        const fade = Math.pow(1 - index / stream.trailLength, 1.45);
-        const alpha = Math.max(0, fade * stream.opacity);
+        const fade = 1 - index / stream.trailLength;
+        const alpha = Math.min(1, stream.opacity * (0.72 + fade * 0.28));
 
         if (index === 0) {
-            matrixContext.fillStyle = `rgba(235, 255, 235, ${Math.min(1, alpha + 0.25)})`;
+            matrixContext.fillStyle = `rgba(238, 255, 238, ${Math.min(1, alpha + 0.18)})`;
             matrixContext.shadowColor = "rgba(195, 255, 195, 0.95)";
             matrixContext.shadowBlur = stream.blur + 2;
-        } else if (index < 3) {
-            matrixContext.fillStyle = `rgba(152, 255, 160, ${alpha})`;
-            matrixContext.shadowColor = "rgba(72, 255, 93, 0.8)";
-            matrixContext.shadowBlur = stream.blur + 0.8;
         } else {
-            matrixContext.fillStyle = `rgba(0, 225, 62, ${alpha * 0.88})`;
-            matrixContext.shadowColor = "rgba(0, 220, 54, 0.34)";
-            matrixContext.shadowBlur = stream.blur * 0.55;
+            matrixContext.fillStyle = `rgba(42, 255, 88, ${alpha})`;
+            matrixContext.shadowColor = "rgba(0, 235, 65, 0.78)";
+            matrixContext.shadowBlur = stream.blur + 0.7;
         }
 
         matrixContext.fillText(stream.glyphs[index], stream.x, y);
