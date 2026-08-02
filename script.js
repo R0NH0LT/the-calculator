@@ -29,8 +29,10 @@ function randomMatrixGlyph() {
 }
 
 function createMatrixStream(x, width, height) {
-    const fontSize = randomBetween(10, 20);
-    const trailLength = Math.floor(randomBetween(14, 42));
+    const fontSize = randomBetween(9, 19);
+    const trailLength = randomTrailLength();
+    const glyphStep = fontSize * randomBetween(1.28, 1.85);
+    const gapChance = randomBetween(0.04, 0.2);
 
     return {
         x,
@@ -38,11 +40,27 @@ function createMatrixStream(x, width, height) {
         fontSize,
         speed: randomBetween(3.2, 12.5),
         trailLength,
-        opacity: randomBetween(0.18, 0.9),
-        blur: randomBetween(2, 10),
+        glyphStep,
+        opacity: randomBetween(0.22, 0.88),
+        blur: randomBetween(0.4, 4.5),
         glyphs: Array.from({ length: trailLength }, randomMatrixGlyph),
+        visibleSlots: Array.from({ length: trailLength }, (_, index) => index < 4 || Math.random() > gapChance),
         mutateRate: randomBetween(0.025, 0.12),
     };
+}
+
+function randomTrailLength() {
+    const roll = Math.random();
+
+    if (roll < 0.45) {
+        return Math.floor(randomBetween(8, 22));
+    }
+
+    if (roll < 0.84) {
+        return Math.floor(randomBetween(24, 54));
+    }
+
+    return Math.floor(randomBetween(58, 104));
 }
 
 function randomBetween(min, max) {
@@ -77,7 +95,7 @@ function drawMatrixRain() {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    matrixContext.fillStyle = "rgba(0, 0, 0, 0.18)";
+    matrixContext.fillStyle = "rgba(0, 0, 0, 0.27)";
     matrixContext.fillRect(0, 0, width, height);
     matrixContext.textAlign = "center";
     matrixContext.textBaseline = "top";
@@ -86,7 +104,7 @@ function drawMatrixRain() {
         drawMatrixStream(stream, height);
         stream.y += stream.speed;
 
-        if (stream.y - stream.trailLength * stream.fontSize > height + stream.fontSize) {
+        if (stream.y - stream.trailLength * stream.glyphStep > height + stream.fontSize) {
             Object.assign(stream, createMatrixStream(stream.x, width, height));
             stream.y = randomBetween(-height * 0.45, -stream.fontSize);
         }
@@ -97,12 +115,15 @@ function drawMatrixRain() {
 
 function drawMatrixStream(stream, height) {
     matrixContext.font = `${stream.fontSize}px "MS Gothic", "Hiragino Kaku Gothic ProN", "Courier New", monospace`;
-    matrixContext.shadowBlur = stream.blur;
 
     for (let index = 0; index < stream.trailLength; index++) {
-        const y = stream.y - index * stream.fontSize;
+        const y = stream.y - index * stream.glyphStep;
 
         if (y < -stream.fontSize || y > height + stream.fontSize) {
+            continue;
+        }
+
+        if (!stream.visibleSlots[index]) {
             continue;
         }
 
@@ -110,18 +131,21 @@ function drawMatrixStream(stream, height) {
             stream.glyphs[index] = randomMatrixGlyph();
         }
 
-        const fade = 1 - index / stream.trailLength;
+        const fade = Math.pow(1 - index / stream.trailLength, 1.45);
         const alpha = Math.max(0, fade * stream.opacity);
 
         if (index === 0) {
             matrixContext.fillStyle = `rgba(235, 255, 235, ${Math.min(1, alpha + 0.25)})`;
             matrixContext.shadowColor = "rgba(195, 255, 195, 0.95)";
+            matrixContext.shadowBlur = stream.blur + 2;
         } else if (index < 3) {
             matrixContext.fillStyle = `rgba(152, 255, 160, ${alpha})`;
             matrixContext.shadowColor = "rgba(72, 255, 93, 0.8)";
+            matrixContext.shadowBlur = stream.blur + 0.8;
         } else {
-            matrixContext.fillStyle = `rgba(0, 210, 54, ${alpha * 0.86})`;
-            matrixContext.shadowColor = "rgba(0, 220, 54, 0.52)";
+            matrixContext.fillStyle = `rgba(0, 210, 54, ${alpha * 0.78})`;
+            matrixContext.shadowColor = "rgba(0, 220, 54, 0.34)";
+            matrixContext.shadowBlur = stream.blur * 0.55;
         }
 
         matrixContext.fillText(stream.glyphs[index], stream.x, y);
