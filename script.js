@@ -1,9 +1,9 @@
-const matrixContainer = document.querySelector("#matrixWallpaper");
+const matrixCanvas = document.querySelector("#matrixWallpaper");
 const transcript = document.querySelector("#transcript");
 const promptForm = document.querySelector("#promptForm");
 const calculatorInput = document.querySelector("#calculatorInput");
-const maxCharacters = 260;
-let characterCount = 0;
+const matrixContext = matrixCanvas.getContext("2d");
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const bootMessages = [
     "Wake up, Neo...",
@@ -12,30 +12,135 @@ const bootMessages = [
     "Type a calculation, then press =",
 ];
 
-function createFallingCharacter() {
-    if (!matrixContainer || characterCount >= maxCharacters) {
+const matrixGlyphGroups = [
+    { start: 0x30A0, end: 0x30FF },
+    { start: 0xFF66, end: 0xFF9D },
+    { start: 0x0030, end: 0x0039 },
+    { start: 0x0041, end: 0x005A },
+];
+let matrixStreams = [];
+let matrixAnimationFrame;
+
+function randomMatrixGlyph() {
+    const group = matrixGlyphGroups[Math.floor(Math.random() * matrixGlyphGroups.length)];
+    const codePoint = group.start + Math.floor(Math.random() * (group.end - group.start + 1));
+
+    return String.fromCharCode(codePoint);
+}
+
+function createMatrixStream(x, width, height) {
+    const fontSize = randomBetween(10, 20);
+    const trailLength = Math.floor(randomBetween(14, 42));
+
+    return {
+        x,
+        y: randomBetween(-height, height),
+        fontSize,
+        speed: randomBetween(0.9, 4.4),
+        trailLength,
+        opacity: randomBetween(0.18, 0.9),
+        blur: randomBetween(2, 10),
+        glyphs: Array.from({ length: trailLength }, randomMatrixGlyph),
+        mutateRate: randomBetween(0.025, 0.12),
+    };
+}
+
+function randomBetween(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function resizeMatrixCanvas() {
+    const pixelRatio = window.devicePixelRatio || 1;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    matrixCanvas.width = Math.floor(width * pixelRatio);
+    matrixCanvas.height = Math.floor(height * pixelRatio);
+    matrixCanvas.style.width = `${width}px`;
+    matrixCanvas.style.height = `${height}px`;
+    matrixContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    seedMatrixStreams(width, height);
+}
+
+function seedMatrixStreams(width, height) {
+    const streamCount = Math.ceil(width / 5);
+    const columnWidth = width / streamCount;
+
+    matrixStreams = Array.from({ length: streamCount }, (_, index) => {
+        const x = index * columnWidth + randomBetween(-5, 8);
+
+        return createMatrixStream(x, width, height);
+    });
+}
+
+function drawMatrixRain() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    matrixContext.fillStyle = "rgba(0, 0, 0, 0.13)";
+    matrixContext.fillRect(0, 0, width, height);
+    matrixContext.textAlign = "center";
+    matrixContext.textBaseline = "top";
+
+    matrixStreams.forEach((stream) => {
+        drawMatrixStream(stream, height);
+        stream.y += stream.speed;
+
+        if (stream.y - stream.trailLength * stream.fontSize > height + stream.fontSize) {
+            Object.assign(stream, createMatrixStream(stream.x, width, height));
+            stream.y = randomBetween(-height * 0.45, -stream.fontSize);
+        }
+    });
+
+    matrixAnimationFrame = requestAnimationFrame(drawMatrixRain);
+}
+
+function drawMatrixStream(stream, height) {
+    matrixContext.font = `${stream.fontSize}px "MS Gothic", "Hiragino Kaku Gothic ProN", "Courier New", monospace`;
+    matrixContext.shadowBlur = stream.blur;
+
+    for (let index = 0; index < stream.trailLength; index++) {
+        const y = stream.y - index * stream.fontSize;
+
+        if (y < -stream.fontSize || y > height + stream.fontSize) {
+            continue;
+        }
+
+        if (Math.random() < stream.mutateRate) {
+            stream.glyphs[index] = randomMatrixGlyph();
+        }
+
+        const fade = 1 - index / stream.trailLength;
+        const alpha = Math.max(0, fade * stream.opacity);
+
+        if (index === 0) {
+            matrixContext.fillStyle = `rgba(235, 255, 235, ${Math.min(1, alpha + 0.25)})`;
+            matrixContext.shadowColor = "rgba(195, 255, 195, 0.95)";
+        } else if (index < 3) {
+            matrixContext.fillStyle = `rgba(152, 255, 160, ${alpha})`;
+            matrixContext.shadowColor = "rgba(72, 255, 93, 0.8)";
+        } else {
+            matrixContext.fillStyle = `rgba(0, 210, 54, ${alpha * 0.86})`;
+            matrixContext.shadowColor = "rgba(0, 220, 54, 0.52)";
+        }
+
+        matrixContext.fillText(stream.glyphs[index], stream.x, y);
+    }
+}
+
+function startMatrixRain() {
+    resizeMatrixCanvas();
+
+    if (prefersReducedMotion) {
+        drawMatrixRain();
+        cancelAnimationFrame(matrixAnimationFrame);
         return;
     }
 
-    const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const randomChar = characters[Math.floor(Math.random() * characters.length)];
-    const characterElement = document.createElement("span");
-
-    characterElement.innerText = randomChar;
-    characterElement.style.left = `${Math.random() * 100}%`;
-    characterElement.style.animationDuration = `${Math.random() * 3 + 2}s`;
-    characterElement.style.opacity = `${Math.random() * 0.55 + 0.3}`;
-
-    matrixContainer.appendChild(characterElement);
-    characterCount++;
-
-    characterElement.addEventListener("animationend", () => {
-        characterElement.remove();
-        characterCount--;
-    }, { once: true });
+    drawMatrixRain();
 }
 
-setInterval(createFallingCharacter, 35);
+window.addEventListener("resize", resizeMatrixCanvas);
 
 function typeBootMessages() {
     let messageIndex = 0;
@@ -383,6 +488,7 @@ function formatResult(result) {
     return Number.parseFloat(result.toFixed(12)).toString();
 }
 
+startMatrixRain();
 typeBootMessages();
 
 window.theCalculator = {
