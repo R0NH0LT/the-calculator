@@ -11,6 +11,9 @@ const bootMessages = [
     "Follow the equation.",
     "Type a calculation, then press =",
 ];
+const incomingTypingDelay = 55;
+const answerTypingDelay = 42;
+let isPromptReady = false;
 
 const matrixGlyphGroups = [
     { start: 0x30A0, end: 0x30FF },
@@ -185,7 +188,7 @@ function typeBootMessages() {
 
     function typeNextMessage() {
         if (messageIndex >= bootMessages.length) {
-            calculatorInput.focus();
+            revealPrompt();
             return;
         }
 
@@ -203,14 +206,20 @@ function typeTranscriptLine(text, className = "", onComplete = () => {}) {
     line.className = `line ${className}`.trim();
     transcript.appendChild(line);
 
+    typeIntoLine(line, text, incomingTypingDelay, () => {
+        transcript.scrollTop = transcript.scrollHeight;
+        onComplete();
+    });
+}
+
+function typeIntoLine(line, text, delay, onComplete = () => {}) {
     let index = 0;
 
     function typeCharacter() {
         if (index < text.length) {
             line.textContent = text.slice(0, index + 1);
             index++;
-            transcript.scrollTop = transcript.scrollHeight;
-            setTimeout(typeCharacter, 55);
+            setTimeout(typeCharacter, delay);
             return;
         }
 
@@ -220,17 +229,21 @@ function typeTranscriptLine(text, className = "", onComplete = () => {}) {
     typeCharacter();
 }
 
-function addTranscriptLine(text, className = "") {
-    const line = document.createElement("p");
-    line.className = `line ${className}`.trim();
-    line.textContent = text;
-    transcript.appendChild(line);
-    transcript.scrollTop = transcript.scrollHeight;
+function revealPrompt() {
+    isPromptReady = true;
+    promptForm.classList.remove("is-hidden");
+    calculatorInput.disabled = false;
+    calculatorInput.focus();
+}
+
+function hidePrompt() {
+    isPromptReady = false;
+    promptForm.classList.add("is-hidden");
+    calculatorInput.disabled = true;
 }
 
 promptForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    runCalculation();
 });
 
 calculatorInput.addEventListener("keydown", (event) => {
@@ -245,10 +258,16 @@ calculatorInput.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("click", () => {
-    calculatorInput.focus();
+    if (isPromptReady) {
+        calculatorInput.focus();
+    }
 });
 
 function runCalculation() {
+    if (!isPromptReady) {
+        return;
+    }
+
     const typedText = calculatorInput.value.trim();
 
     if (!typedText) {
@@ -256,14 +275,42 @@ function runCalculation() {
     }
 
     calculatorInput.value = "";
+    hidePrompt();
 
     try {
         const expression = extractMathExpression(typedText);
         const result = evaluateMathExpression(expression);
-        addTranscriptLine(`> ${typedText} = ${formatResult(result)}`, "calculation");
+        displayCalculationExchange(typedText, formatResult(result), "calculation");
     } catch (error) {
-        addTranscriptLine(`> ${typedText} = ${error.message}`, "error");
+        displayCalculationExchange(typedText, error.message, "error");
     }
+}
+
+function displayCalculationExchange(typedText, answerText, answerClass) {
+    const exchange = document.createElement("section");
+    const equationLine = document.createElement("p");
+    const answerLine = document.createElement("p");
+
+    exchange.className = "exchange";
+    equationLine.className = "line equation";
+    equationLine.textContent = `> ${typedText} =`;
+    answerLine.className = `line answer ${answerClass}`.trim();
+
+    exchange.append(equationLine, answerLine);
+    transcript.appendChild(exchange);
+    exchange.style.minHeight = `${transcript.clientHeight + equationLine.offsetHeight + 16}px`;
+    scrollAnswerIntoView(answerLine);
+
+    typeIntoLine(answerLine, answerText, answerTypingDelay, () => {
+        scrollAnswerIntoView(answerLine);
+        revealPrompt();
+    });
+}
+
+function scrollAnswerIntoView(answerLine) {
+    const answerTop = answerLine.offsetTop - transcript.offsetTop;
+
+    transcript.scrollTop = Math.max(0, answerTop - 4);
 }
 
 function extractMathExpression(text) {

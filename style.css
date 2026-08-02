@@ -79,6 +79,19 @@ body {
     overflow-wrap: anywhere;
 }
 
+.exchange {
+    padding-top: 2px;
+}
+
+.equation {
+    color: var(--green-dim);
+}
+
+.answer {
+    color: var(--green-bright);
+    font-size: clamp(1.2rem, 2.8vw, 1.65rem);
+}
+
 .incoming {
     color: var(--green-bright);
 }
@@ -100,6 +113,13 @@ body {
     margin-top: 20px;
     padding-top: 18px;
     border-top: 1px solid rgba(0, 255, 0, 0.24);
+    opacity: 1;
+    transition: opacity 180ms ease;
+}
+
+#promptForm.is-hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
 #promptCaret {
