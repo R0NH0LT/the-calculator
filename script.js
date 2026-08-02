@@ -20,6 +20,9 @@ const matrixGlyphGroups = [
 ];
 let matrixStreams = [];
 let matrixAnimationFrame;
+let lastMatrixFrameTime = 0;
+const targetFrameRate = 60;
+const baseFadeAlpha = 0.23;
 
 function randomMatrixGlyph() {
     const group = matrixGlyphGroups[Math.floor(Math.random() * matrixGlyphGroups.length)];
@@ -38,7 +41,7 @@ function createMatrixStream(x, width, height) {
         x,
         y: randomBetween(-height, height),
         fontSize,
-        speed: randomBetween(3.2, 12.5),
+        speed: randomBetween(190, 750),
         trailLength,
         glyphStep,
         opacity: randomBetween(0.32, 1),
@@ -91,18 +94,20 @@ function seedMatrixStreams(width, height) {
     });
 }
 
-function drawMatrixRain() {
+function drawMatrixRain(timestamp = performance.now()) {
     const width = window.innerWidth;
     const height = window.innerHeight;
+    const deltaSeconds = getMatrixDeltaSeconds(timestamp);
+    const fadeAlpha = 1 - Math.pow(1 - baseFadeAlpha, deltaSeconds * targetFrameRate);
 
-    matrixContext.fillStyle = "rgba(0, 0, 0, 0.23)";
+    matrixContext.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`;
     matrixContext.fillRect(0, 0, width, height);
     matrixContext.textAlign = "center";
     matrixContext.textBaseline = "top";
 
     matrixStreams.forEach((stream) => {
         drawMatrixStream(stream, height);
-        stream.y += stream.speed;
+        stream.y += stream.speed * deltaSeconds;
 
         if (stream.y - stream.trailLength * stream.glyphStep > height + stream.fontSize) {
             Object.assign(stream, createMatrixStream(stream.x, width, height));
@@ -111,6 +116,18 @@ function drawMatrixRain() {
     });
 
     matrixAnimationFrame = requestAnimationFrame(drawMatrixRain);
+}
+
+function getMatrixDeltaSeconds(timestamp) {
+    if (!lastMatrixFrameTime) {
+        lastMatrixFrameTime = timestamp;
+        return 1 / targetFrameRate;
+    }
+
+    const deltaSeconds = (timestamp - lastMatrixFrameTime) / 1000;
+    lastMatrixFrameTime = timestamp;
+
+    return Math.min(Math.max(deltaSeconds, 1 / 144), 0.05);
 }
 
 function drawMatrixStream(stream, height) {
@@ -150,14 +167,15 @@ function drawMatrixStream(stream, height) {
 
 function startMatrixRain() {
     resizeMatrixCanvas();
+    lastMatrixFrameTime = performance.now();
 
     if (prefersReducedMotion) {
-        drawMatrixRain();
+        drawMatrixRain(lastMatrixFrameTime);
         cancelAnimationFrame(matrixAnimationFrame);
         return;
     }
 
-    drawMatrixRain();
+    matrixAnimationFrame = requestAnimationFrame(drawMatrixRain);
 }
 
 window.addEventListener("resize", resizeMatrixCanvas);
