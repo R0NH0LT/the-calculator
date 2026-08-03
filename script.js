@@ -11,8 +11,9 @@ const bootMessages = [
     "Follow the equation.",
     "Type a calculation, then press =",
 ];
-const incomingTypingDelay = 55;
-const answerTypingDelay = 42;
+const incomingTypingDelay = 24;
+const answerTypingDelay = 28;
+const bootMessagePause = 1150;
 let isPromptReady = false;
 
 const matrixGlyphGroups = [
@@ -192,9 +193,12 @@ function typeBootMessages() {
             return;
         }
 
-        typeTranscriptLine(bootMessages[messageIndex], "incoming", () => {
-            messageIndex++;
-            setTimeout(typeNextMessage, 420);
+        const line = typeTranscriptLine(bootMessages[messageIndex], "incoming", () => {
+            setTimeout(() => {
+                line.remove();
+                messageIndex++;
+                typeNextMessage();
+            }, bootMessagePause);
         });
     }
 
@@ -210,6 +214,8 @@ function typeTranscriptLine(text, className = "", onComplete = () => {}) {
         transcript.scrollTop = transcript.scrollHeight;
         onComplete();
     });
+
+    return line;
 }
 
 function typeIntoLine(line, text, delay, onComplete = () => {}) {
