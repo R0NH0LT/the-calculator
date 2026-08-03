@@ -90,6 +90,90 @@ body.matrix-awake #matrixOverlay {
     box-shadow: 0 0 22px rgba(0, 255, 0, 0.32), inset 0 0 18px rgba(0, 255, 0, 0.1);
 }
 
+#firstNameInput.is-flickering-out {
+    animation: badBulbFlicker 1.35s steps(1, end) forwards;
+}
+
+.skip-sequence {
+    position: fixed;
+    top: 22px;
+    right: 22px;
+    z-index: 3;
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    background: black;
+    color: var(--green-bright);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.85rem;
+    letter-spacing: 0;
+    padding: 9px 14px;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.55);
+    box-shadow: 0 0 16px rgba(0, 255, 0, 0.18), inset 0 0 14px rgba(0, 255, 0, 0.08);
+    opacity: 1;
+    transition: opacity 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.skip-sequence:hover,
+.skip-sequence:focus-visible {
+    border-color: var(--green-bright);
+    outline: none;
+    box-shadow: 0 0 22px rgba(0, 255, 0, 0.32), inset 0 0 14px rgba(0, 255, 0, 0.12);
+}
+
+.skip-sequence.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.pill-easter-egg {
+    position: fixed;
+    bottom: 18px;
+    z-index: 4;
+    width: 94px;
+    height: 44px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0;
+    padding: 0;
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.pill-easter-egg::before {
+    content: "";
+    position: absolute;
+    inset: 7px 12px;
+    border-radius: 999px;
+    box-shadow: 0 0 16px currentColor, inset -8px -8px 14px rgba(0, 0, 0, 0.42);
+}
+
+.pill-easter-egg:hover,
+.pill-easter-egg:focus-visible {
+    opacity: 1;
+    outline: none;
+    transform: translateY(-2px);
+}
+
+.red-pill {
+    left: 16px;
+    color: rgb(255, 32, 32);
+}
+
+.red-pill::before {
+    background: linear-gradient(135deg, rgb(255, 80, 80), rgb(130, 0, 0));
+}
+
+.blue-pill {
+    right: 16px;
+    color: rgb(70, 150, 255);
+}
+
+.blue-pill::before {
+    background: linear-gradient(135deg, rgb(105, 180, 255), rgb(0, 38, 145));
+}
+
 #computerContainer {
     position: relative;
     z-index: 1;
@@ -110,6 +194,7 @@ body.matrix-awake #matrixOverlay {
 }
 
 #computerScreen {
+    position: relative;
     width: 100%;
     min-height: min(70vh, 42rem);
     padding: 28px;
@@ -119,7 +204,20 @@ body.matrix-awake #matrixOverlay {
     box-shadow:
         0 0 28px rgba(0, 255, 0, 0.28),
         inset 0 0 36px rgba(0, 255, 0, 0.1);
-    animation: screenWake 900ms ease-out;
+    transform-origin: center;
+}
+
+#computerScreen.is-game-active {
+    min-height: min(70vh, 42rem);
+}
+
+#computerScreen.is-game-active #transcript,
+#computerScreen.is-game-active #promptForm {
+    display: none;
+}
+
+#computerContainer.is-opening #computerScreen {
+    animation: screenWake 950ms ease-out;
 }
 
 #transcript {
@@ -141,6 +239,10 @@ body.matrix-awake #matrixOverlay {
 
 .exchange {
     padding-top: 2px;
+}
+
+.transcript-spacer {
+    pointer-events: none;
 }
 
 .equation {
@@ -206,6 +308,104 @@ body.matrix-awake #matrixOverlay {
     background: rgba(0, 255, 0, 0.25);
 }
 
+.matrix-game {
+    position: relative;
+    min-height: min(54vh, 31rem);
+    color: var(--green-bright);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.matrix-game.is-hidden {
+    display: none;
+}
+
+#matrixGameCanvas {
+    display: block;
+    width: 100%;
+    height: min(54vh, 31rem);
+    border: 1px solid rgba(0, 255, 0, 0.36);
+    border-radius: 4px;
+    background: black;
+    box-shadow: inset 0 0 30px rgba(0, 255, 0, 0.08);
+}
+
+.game-quit {
+    align-self: flex-end;
+    border: 1px solid rgba(0, 255, 0, 0.58);
+    border-radius: 6px;
+    background: black;
+    color: var(--green-bright);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8rem;
+    letter-spacing: 0;
+    padding: 7px 10px;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.12), inset 0 0 10px rgba(0, 255, 0, 0.06);
+}
+
+.game-quit:hover,
+.game-quit:focus-visible {
+    border-color: var(--green-bright);
+    outline: none;
+    box-shadow: 0 0 18px rgba(0, 255, 0, 0.28), inset 0 0 10px rgba(0, 255, 0, 0.12);
+}
+
+.game-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 18px;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.76);
+    text-align: center;
+}
+
+.game-overlay.is-hidden {
+    display: none;
+}
+
+#gameMessage {
+    margin: 0;
+    color: var(--green-bright);
+    font-size: clamp(1.1rem, 3vw, 1.9rem);
+    line-height: 1.35;
+    letter-spacing: 0;
+    text-shadow: 0 0 14px rgba(0, 255, 0, 0.65);
+}
+
+.game-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.game-actions button {
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    background: black;
+    color: var(--green-bright);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.9rem;
+    letter-spacing: 0;
+    padding: 10px 14px;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.55);
+    box-shadow: 0 0 14px rgba(0, 255, 0, 0.14), inset 0 0 12px rgba(0, 255, 0, 0.08);
+}
+
+.game-actions button:hover,
+.game-actions button:focus-visible {
+    border-color: var(--green-bright);
+    outline: none;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3), inset 0 0 12px rgba(0, 255, 0, 0.12);
+}
+
 .visually-hidden {
     position: absolute;
     width: 1px;
@@ -233,6 +433,45 @@ body.matrix-awake #matrixOverlay {
         opacity: 1;
         transform: scale(1);
         filter: brightness(1);
+    }
+}
+
+@keyframes badBulbFlicker {
+    0%,
+    14%,
+    22%,
+    39%,
+    47%,
+    61% {
+        opacity: 1;
+        border-color: var(--green-bright);
+        box-shadow: 0 0 24px rgba(0, 255, 0, 0.36), inset 0 0 18px rgba(0, 255, 0, 0.12);
+        filter: brightness(1.25);
+    }
+
+    9%,
+    18%,
+    31%,
+    43%,
+    56%,
+    70% {
+        opacity: 0.18;
+        border-color: rgba(0, 255, 0, 0.18);
+        box-shadow: none;
+        filter: brightness(0.45);
+    }
+
+    78% {
+        opacity: 0.82;
+        transform: scaleX(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleX(0.04);
+        border-color: transparent;
+        box-shadow: none;
+        filter: brightness(0);
     }
 }
 

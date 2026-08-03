@@ -18,6 +18,9 @@
             <input type="text" id="firstNameInput" name="firstName" placeholder="First name." autocomplete="given-name" spellcheck="false">
         </form>
     </section>
+    <button type="button" id="skipSequenceButton" class="skip-sequence is-hidden">Skip</button>
+    <button type="button" id="redPillButton" class="pill-easter-egg red-pill" aria-label="Red pill"></button>
+    <button type="button" id="bluePillButton" class="pill-easter-egg blue-pill" aria-label="Blue pill"></button>
     <main id="computerContainer" class="is-hidden" aria-label="The Calculator terminal">
         <section id="computerScreen">
             <div id="transcript" aria-live="polite"></div>
@@ -26,8 +29,20 @@
                 <label class="visually-hidden" for="calculatorInput">Type a calculation</label>
                 <input type="text" id="calculatorInput" inputmode="text" autocomplete="off" spellcheck="false" disabled>
             </form>
+            <section id="matrixGame" class="matrix-game is-hidden" aria-label="Red pill game" tabindex="-1">
+                <canvas id="matrixGameCanvas" aria-label="Neo side scrolling through the Matrix"></canvas>
+                <button type="button" id="quitGameButton" class="game-quit">Quit</button>
+                <div id="gameOverlay" class="game-overlay is-hidden">
+                    <p id="gameMessage"></p>
+                    <div class="game-actions">
+                        <button type="button" id="playAgainButton">Play Again</button>
+                        <button type="button" id="calculatorButton">Calculator</button>
+                    </div>
+                </div>
+            </section>
         </section>
     </main>
+    <audio id="gameMusic" src="assets/neon-rainfall.mp3" preload="none" loop></audio>
     <script src="script.js"></script>
 </body>
 </html>
