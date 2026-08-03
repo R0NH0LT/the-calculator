@@ -12,7 +12,13 @@
 <body>
     <canvas id="matrixWallpaper" aria-hidden="true"></canvas>
     <div id="matrixOverlay" aria-hidden="true"></div>
-    <main id="computerContainer" aria-label="The Calculator terminal">
+    <section id="introScreen" aria-label="Enter your first name">
+        <form id="nameForm" autocomplete="off">
+            <label class="visually-hidden" for="firstNameInput">First name</label>
+            <input type="text" id="firstNameInput" name="firstName" placeholder="First name." autocomplete="given-name" spellcheck="false">
+        </form>
+    </section>
+    <main id="computerContainer" class="is-hidden" aria-label="The Calculator terminal">
         <section id="computerScreen">
             <div id="transcript" aria-live="polite"></div>
             <form id="promptForm" class="is-hidden" autocomplete="off">

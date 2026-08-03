@@ -1,4 +1,8 @@
 const matrixCanvas = document.querySelector("#matrixWallpaper");
+const introScreen = document.querySelector("#introScreen");
+const nameForm = document.querySelector("#nameForm");
+const firstNameInput = document.querySelector("#firstNameInput");
+const computerContainer = document.querySelector("#computerContainer");
 const transcript = document.querySelector("#transcript");
 const promptForm = document.querySelector("#promptForm");
 const calculatorInput = document.querySelector("#calculatorInput");
@@ -6,7 +10,7 @@ const matrixContext = matrixCanvas.getContext("2d");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const bootMessages = [
-    "Wake up, Neo...",
+    "Wake up, {firstName}...",
     "The Matrix has you...",
     "Follow the equation.",
     "Type a calculation, then press =",
@@ -14,7 +18,9 @@ const bootMessages = [
 const incomingTypingDelay = 24;
 const answerTypingDelay = 28;
 const bootMessagePause = 1150;
+const terminalStartDelay = 2000;
 let isPromptReady = false;
+let firstName = "";
 
 const matrixGlyphGroups = [
     { start: 0x30A0, end: 0x30FF },
@@ -184,6 +190,39 @@ function startMatrixRain() {
 
 window.addEventListener("resize", resizeMatrixCanvas);
 
+nameForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    enterMatrix();
+});
+
+firstNameInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        enterMatrix();
+    }
+
+    if (event.key === "=") {
+        event.preventDefault();
+    }
+});
+
+function enterMatrix() {
+    const typedName = firstNameInput.value.trim();
+
+    if (!typedName) {
+        firstNameInput.focus();
+        return;
+    }
+
+    firstName = typedName.split(/\s+/)[0];
+    firstNameInput.disabled = true;
+    introScreen.classList.add("is-hidden");
+    document.body.classList.add("matrix-awake");
+    startMatrixRain();
+    computerContainer.classList.remove("is-hidden");
+    setTimeout(typeBootMessages, terminalStartDelay);
+}
+
 function typeBootMessages() {
     let messageIndex = 0;
 
@@ -193,7 +232,7 @@ function typeBootMessages() {
             return;
         }
 
-        const line = typeTranscriptLine(bootMessages[messageIndex], "incoming", () => {
+        const line = typeTranscriptLine(formatBootMessage(bootMessages[messageIndex]), "incoming", () => {
             setTimeout(() => {
                 line.remove();
                 messageIndex++;
@@ -203,6 +242,10 @@ function typeBootMessages() {
     }
 
     typeNextMessage();
+}
+
+function formatBootMessage(message) {
+    return message.replace("{firstName}", firstName);
 }
 
 function typeTranscriptLine(text, className = "", onComplete = () => {}) {
@@ -579,8 +622,7 @@ function formatResult(result) {
     return Number.parseFloat(result.toFixed(12)).toString();
 }
 
-startMatrixRain();
-typeBootMessages();
+firstNameInput.focus();
 
 window.theCalculator = {
     evaluateMathExpression,
